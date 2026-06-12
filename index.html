@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Maria Amélia · #MinhaEsperançaTemVoz</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --verde-bandeira: #009b3a;
+      --verde-escuro: #004b1c;
+      --amarelo-ouro: #ffdf00;
+      --azul-marinho: #002776;
+      --branco: #ffffff;
+      --fundo-escuro: #0a1a0f;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: radial-gradient(circle at top, var(--verde-escuro) 0%, var(--fundo-escuro) 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 48px;
+      color: var(--branco);
+    }
+
+    .header { text-align: center; margin-bottom: 20px; width: 100%; max-width: 500px; }
+
+    .logo-placeholder {
+      width: min(300px, 80vw);
+      height: 80px;
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-placeholder img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .header-sub {
+      font-size: 0.85rem;
+      color: var(--amarelo-ouro);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      opacity: 0.9;
+      margin-bottom: 14px;
+    }
+
+    /* ── Format Selector ── */
+    .format-selector {
+      width: min(400px, 90vw);
+      margin-bottom: 20px;
+    }
+
+    .format-label {
+      font-size: 0.72rem;
+      color: #aaa;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .format-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .format-btn {
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 12px 8px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: #bbb;
+      font-family: 'Barlow', sans-serif;
+    }
+
+    .format-btn:hover {
+      border-color: var(--verde-bandeira);
+      background: rgba(0, 155, 58, 0.1);
+      color: #fff;
+    }
+
+    .format-btn.active {
+      border-color: var(--amarelo-ouro);
+      background: rgba(255, 223, 0, 0.08);
+      color: #fff;
+      box-shadow: 0 0 16px rgba(255, 223, 0, 0.15);
+    }
+
+    .format-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .shape-post {
+      width: 36px;
+      height: 36px;
+      border: 2.5px solid currentColor;
+      border-radius: 6px;
+      opacity: 0.9;
+    }
+    .shape-stories {
+      width: 22px;
+      height: 36px;
+      border: 2.5px solid currentColor;
+      border-radius: 5px;
+      opacity: 0.9;
+    }
+    .shape-perfil {
+      width: 36px;
+      height: 36px;
+      border: 2.5px solid currentColor;
+      border-radius: 50%;
+      opacity: 0.9;
+    }
+
+    .format-name {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .format-size {
+      font-size: 0.65rem;
+      opacity: 0.6;
+      font-weight: 400;
+    }
+
+    /* ── Preview ── */
+    .preview-wrap {
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* permite clicar em qualquer lugar da preview para abrir o seletor de arquivo */
+      cursor: pointer;
+    }
+
+    .circle-outer {
+      border-radius: 50%;
+      padding: 8px;
+      background: linear-gradient(45deg, var(--verde-bandeira), var(--amarelo-ouro), var(--verde-bandeira));
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    }
+    .circle-inner {
+      border-radius: 50%;
+      overflow: hidden;
+      position: relative;
+      background: #fff;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+    .circle-inner:active { cursor: grabbing; }
+
+    .rect-outer {
+      padding: 8px;
+      background: linear-gradient(45deg, var(--verde-bandeira), var(--amarelo-ouro), var(--verde-bandeira));
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    }
+    .rect-inner {
+      overflow: hidden;
+      position: relative;
+      background: #fff;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+    .rect-inner:active { cursor: grabbing; }
+
+    #cv { width: 100%; height: 100%; display: block; }
+
+    /* Placeholder: apenas visual, sem bloquear eventos do canvas */
+    .placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #777;
+      gap: 12px;
+      font-size: .9rem;
+      pointer-events: none; /* CRÍTICO: não bloqueia o canvas abaixo */
+      text-align: center;
+      background: rgba(255,255,255,0.0);
+    }
+    .placeholder svg { color: var(--verde-bandeira); opacity: 0.6; }
+
+    /* ── Controls ── */
+    .controls {
+      width: min(400px, 90vw);
+      display: flex; flex-direction: column; gap: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 24px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(15px);
+    }
+
+    .btn-upload {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      background: var(--verde-bandeira); color: #fff;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.1rem; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; border: none; border-radius: 12px;
+      padding: 16px 20px; cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 155, 58, 0.3);
+      transition: all .2s;
+    }
+    .btn-upload:hover { transform: translateY(-2px); background: var(--verde-escuro); }
+
+    input[type="file"] { display: none; }
+
+    .zoom-row { display: flex; align-items: center; gap: 12px; }
+    .zoom-row label { font-size: .75rem; color: #aaa; font-weight: 700; text-transform: uppercase; min-width: 50px; }
+    input[type="range"] { flex:1; accent-color: var(--amarelo-ouro); cursor: pointer; height: 6px; }
+
+    .btn-row { display: flex; gap: 12px; }
+
+    .btn-rotate {
+      background: transparent; border: 2px solid rgba(255,255,255,0.2); color: #fff;
+      width: 56px; height: 56px; border-radius: 12px;
+      cursor: pointer; flex-shrink: 0; transition: all .2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .btn-rotate:hover { background: rgba(255,255,255,0.1); border-color: var(--amarelo-ouro); }
+
+    .btn-download {
+      flex:1; display: flex; align-items: center; justify-content: center; gap: 10px;
+      background: var(--amarelo-ouro); color: var(--verde-escuro);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.1rem; font-weight: 900; letter-spacing: .06em;
+      text-transform: uppercase; border: none; border-radius: 12px;
+      padding: 16px 20px; cursor: pointer;
+      box-shadow: 0 4px 15px rgba(255, 223, 0, 0.3);
+      transition: all .2s;
+    }
+    .btn-download:hover { transform: translateY(-2px); filter: brightness(1.1); }
+    .btn-download:disabled { opacity: .3; cursor: not-allowed; transform: none; }
+
+    .hint { font-size: .8rem; color: #888; text-align: center; }
+    footer { margin-top: 40px; font-size: .75rem; color: #555; text-align: center; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-placeholder">
+    <img src="LOGO_MARIA_AMELIA_BRANCO.svg" alt="Logo Maria Amélia">
+  </div>
+  <p class="header-sub">Filtro oficial de perfil</p>
+</div>
+
+<!-- Format Selector -->
+<div class="format-selector">
+  <span class="format-label">Selecione seu formato</span>
+  <div class="format-options">
+    <button class="format-btn active" data-format="perfil">
+      <div class="format-icon"><div class="shape-perfil"></div></div>
+      <div>
+        <div class="format-name">Perfil</div>
+        <div class="format-size">1000×1000</div>
+      </div>
+    </button>
+    <button class="format-btn" data-format="post">
+      <div class="format-icon"><div class="shape-post"></div></div>
+      <div>
+        <div class="format-name">Post</div>
+        <div class="format-size">1080×1080</div>
+      </div>
+    </button>
+    <button class="format-btn" data-format="stories">
+      <div class="format-icon"><div class="shape-stories"></div></div>
+      <div>
+        <div class="format-name">Stories</div>
+        <div class="format-size">1080×1920</div>
+      </div>
+    </button>
+  </div>
+</div>
+
+<!-- Preview — clicar aqui também abre o seletor de arquivo -->
+<div class="preview-wrap" id="previewWrap"></div>
+
+<div class="controls">
+  <label class="btn-upload" for="fi">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="17 8 12 3 7 8"/>
+      <line x1="12" y1="3" x2="12" y2="15"/>
+    </svg>
+    Escolher minha foto
+  </label>
+  <input type="file" id="fi" accept="image/*" />
+
+  <div class="zoom-row">
+    <label>🔍 Zoom</label>
+    <input type="range" id="zoomR" min="0.5" max="3" step="0.01" value="1" />
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-rotate" id="rotBtn" title="Girar 90°">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M23 4v6h-6"/>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+      </svg>
+    </button>
+    <button class="btn-download" id="dlBtn" disabled>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Baixar minha foto
+    </button>
+  </div>
+
+  <p class="hint">✋ Arraste a foto para ajustar · Clique na imagem para trocar</p>
+</div>
+
+<footer>#MinhaEsperançaTemVoz · Maria Amélia</footer>
+
+<script>
+  // ── Format configs ──────────────────────────────────────────────
+  const FORMATS = {
+    perfil:  { cw: 1000, ch: 1000, label: 'filtro-perfil-maria-amelia',   circular: true  },
+    post:    { cw: 1080, ch: 1080, label: 'filtro-post-maria-amelia',     circular: false },
+    stories: { cw: 1080, ch: 1920, label: 'filtro-stories-maria-amelia', circular: false },
+  };
+
+  const MAX_PREVIEW_W = Math.min(400, window.innerWidth * 0.90);
+  const MAX_PREVIEW_H = 460;
+
+  let currentFormat = 'perfil';
+  let userImg = null;
+  let frameImgs = {};
+  let zoom = 1, rot = 0, ox = 0, oy = 0;
+
+  let cv, ctx, circ, phEl;
+
+  // ── Build preview DOM ────────────────────────────────────────────
+  function buildPreview() {
+    const wrap = document.getElementById('previewWrap');
+    wrap.innerHTML = '';
+
+    const fmt = FORMATS[currentFormat];
+    const ratio = fmt.cw / fmt.ch;
+
+    let pw, ph_px;
+    if (ratio >= 1) {
+      pw = Math.min(MAX_PREVIEW_W, MAX_PREVIEW_H * ratio);
+      ph_px = pw / ratio;
+    } else {
+      ph_px = Math.min(MAX_PREVIEW_H, MAX_PREVIEW_W / ratio);
+      pw = ph_px * ratio;
+    }
+
+    const outer = document.createElement('div');
+    const inner = document.createElement('div');
+    inner.id = 'circ';
+    inner.style.touchAction = 'none';
+    inner.style.userSelect = 'none';
+    inner.style.position = 'relative';
+    inner.style.overflow = 'hidden';
+    inner.style.cursor = 'grab';
+    inner.style.background = '#fff';
+
+    if (fmt.circular) {
+      const size = Math.min(pw, ph_px);
+      outer.className = 'circle-outer';
+      outer.style.width = size + 'px';
+      outer.style.height = size + 'px';
+      inner.className = 'circle-inner';
+      inner.style.width = '100%';
+      inner.style.height = '100%';
+    } else {
+      outer.className = 'rect-outer';
+      outer.style.borderRadius = '20px';
+      outer.style.width = pw + 'px';
+      outer.style.height = ph_px + 'px';
+      inner.className = 'rect-inner';
+      inner.style.width = '100%';
+      inner.style.height = '100%';
+      inner.style.borderRadius = '12px';
+    }
+
+    // Canvas — tamanho de exibição igual ao container, resolução interna = format
+    cv = document.createElement('canvas');
+    cv.id = 'cv';
+    cv.width  = fmt.cw;
+    cv.height = fmt.ch;
+    cv.style.width  = '100%';
+    cv.style.height = '100%';
+    cv.style.display = 'block';
+    ctx = cv.getContext('2d');
+
+    // Placeholder — pointer-events:none para não bloquear canvas
+    phEl = document.createElement('div');
+    phEl.className = 'placeholder';
+    phEl.id = 'ph';
+    phEl.innerHTML = `
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="3" width="18" height="18" rx="3"/>
+        <circle cx="8.5" cy="8.5" r="1.5"/>
+        <path d="m21 15-5-5L5 21"/>
+      </svg>
+      <p>Clique aqui ou no botão abaixo para enviar sua foto</p>`;
+
+    // Se já tem foto carregada, esconde o placeholder imediatamente
+    if (userImg) phEl.style.display = 'none';
+
+    inner.appendChild(cv);
+    inner.appendChild(phEl);
+    outer.appendChild(inner);
+    wrap.appendChild(outer);
+
+    circ = inner;
+
+    attachDragListeners();
+    loadFrame(currentFormat).then(() => draw());
+  }
+
+  // ── Frame config ─────────────────────────────────────────────────
+  const FRAME_CONFIG = {
+    perfil:  { file: 'moldura2.PNG', emptyBottom: 0.10 },
+    post:    { file: 'moldura.PNG',  emptyBottom: 0.32 },
+    stories: { file: 'moldura.PNG',  emptyBottom: 0.32 },
+  };
+
+  function loadFrame(fmt) {
+    const key = FRAME_CONFIG[fmt].file;
+    if (frameImgs[key]) return Promise.resolve();
+    return new Promise(resolve => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload  = () => { frameImgs[key] = img; resolve(); };
+      img.onerror = () => resolve();
+      img.src = key + '?v=' + Date.now();
+    });
+  }
+
+  // ── Draw ─────────────────────────────────────────────────────────
+  function draw() {
+    if (!cv || !ctx) return;
+    const fmt = FORMATS[currentFormat];
+    const CW = fmt.cw, CH = fmt.ch;
+    ctx.clearRect(0, 0, CW, CH);
+
+    if (userImg) {
+      ctx.save();
+      ctx.translate(CW / 2 + ox, CH / 2 + oy);
+      ctx.rotate(rot * Math.PI / 180);
+      ctx.scale(zoom, zoom);
+      const iw = userImg.naturalWidth, ih = userImg.naturalHeight;
+      const base = Math.max(CW / iw, CH / ih);
+      ctx.drawImage(userImg, -iw * base / 2, -ih * base / 2, iw * base, ih * base);
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, CW, CH);
+    }
+
+    const cfg = FRAME_CONFIG[currentFormat];
+    const fi  = frameImgs[cfg.file];
+    if (fi && fi.complete && fi.naturalWidth > 0) {
+      const frameW = CW;
+      const frameH = frameW * (fi.naturalHeight / fi.naturalWidth);
+      const frameX = 0;
+      const frameY = CH - frameH + (frameH * cfg.emptyBottom);
+      ctx.drawImage(fi, frameX, frameY, frameW, frameH);
+    }
+  }
+
+  // ── Format buttons ───────────────────────────────────────────────
+  document.querySelectorAll('.format-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFormat = btn.dataset.format;
+      zoom = 1; rot = 0; ox = 0; oy = 0;
+      document.getElementById('zoomR').value = 1;
+      buildPreview();
+      document.getElementById('dlBtn').disabled = !userImg;
+    });
+  });
+
+  // ── File input ───────────────────────────────────────────────────
+  document.getElementById('fi').addEventListener('change', e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        userImg = img;
+        zoom = 1; rot = 0; ox = 0; oy = 0;
+        document.getElementById('zoomR').value = 1;
+        // Esconde placeholder
+        if (phEl) phEl.style.display = 'none';
+        document.getElementById('dlBtn').disabled = false;
+        draw();
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(f);
+    // Reset para permitir selecionar a mesma foto novamente
+    e.target.value = '';
+  });
+
+  document.getElementById('zoomR').addEventListener('input', e => {
+    zoom = parseFloat(e.target.value);
+    draw();
+  });
+
+  document.getElementById('rotBtn').addEventListener('click', () => {
+    rot = (rot + 90) % 360;
+    draw();
+  });
+
+  // ── Drag ─────────────────────────────────────────────────────────
+  let dragging = false;
+  let dragStart = { x: 0, y: 0 };
+  let oxAtDragStart = 0, oyAtDragStart = 0;
+  let lastPinchDist = null;
+
+  /**
+   * Converte coordenadas de tela (clientX/Y) para coordenadas do canvas
+   * usando a relação entre tamanho CSS e resolução interna.
+   */
+  function clientToCanvas(clientX, clientY) {
+    const rect = cv.getBoundingClientRect();
+    const scaleX = cv.width  / rect.width;
+    const scaleY = cv.height / rect.height;
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top)  * scaleY,
+    };
+  }
+
+  function attachDragListeners() {
+    // — Mouse —
+    circ.addEventListener('mousedown', e => {
+      if (!userImg) return;
+      e.preventDefault();
+      dragging = true;
+      const p = clientToCanvas(e.clientX, e.clientY);
+      dragStart = p;
+      oxAtDragStart = ox;
+      oyAtDragStart = oy;
+    });
+
+    // — Touch: arrastar (1 dedo) —
+    circ.addEventListener('touchstart', e => {
+      if (!userImg) return;
+      if (e.touches.length === 1) {
+        e.preventDefault();
+        dragging = true;
+        lastPinchDist = null;
+        const t = e.touches[0];
+        const p = clientToCanvas(t.clientX, t.clientY);
+        dragStart = p;
+        oxAtDragStart = ox;
+        oyAtDragStart = oy;
+      }
+    }, { passive: false });
+
+    circ.addEventListener('touchmove', e => {
+      e.preventDefault();
+
+      // Pinch-to-zoom (2 dedos)
+      if (e.touches.length === 2) {
+        dragging = false;
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.hypot(dx, dy);
+        if (lastPinchDist) {
+          zoom = Math.min(3, Math.max(0.5, zoom * dist / lastPinchDist));
+          document.getElementById('zoomR').value = zoom;
+          draw();
+        }
+        lastPinchDist = dist;
+        return;
+      }
+
+      // Arrastar (1 dedo)
+      if (!dragging || e.touches.length !== 1) return;
+      lastPinchDist = null;
+      const t = e.touches[0];
+      const p = clientToCanvas(t.clientX, t.clientY);
+      ox = oxAtDragStart + (p.x - dragStart.x);
+      oy = oyAtDragStart + (p.y - dragStart.y);
+      draw();
+    }, { passive: false });
+
+    circ.addEventListener('touchend', () => {
+      dragging = false;
+      lastPinchDist = null;
+    });
+  }
+
+  // Mouse move/up globais para não perder o drag ao sair do elemento
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const p = clientToCanvas(e.clientX, e.clientY);
+    ox = oxAtDragStart + (p.x - dragStart.x);
+    oy = oyAtDragStart + (p.y - dragStart.y);
+    draw();
+  });
+  window.addEventListener('mouseup', () => { dragging = false; });
+
+  // ── Download ─────────────────────────────────────────────────────
+  document.getElementById('dlBtn').addEventListener('click', () => {
+    draw();
+    const fmt = FORMATS[currentFormat];
+    const tmp = document.createElement('canvas');
+    tmp.width  = fmt.cw;
+    tmp.height = fmt.ch;
+    const tc = tmp.getContext('2d');
+
+    if (fmt.circular) {
+      const S = fmt.cw;
+      tc.beginPath();
+      tc.arc(S / 2, S / 2, S / 2, 0, Math.PI * 2);
+      tc.closePath();
+      tc.clip();
+    }
+    tc.drawImage(cv, 0, 0);
+
+    const a = document.createElement('a');
+    a.download = fmt.label + '.png';
+    a.href = tmp.toDataURL('image/png');
+    a.click();
+  });
+
+  // ── Init ─────────────────────────────────────────────────────────
+  buildPreview();
+
+  // Clicar na preview abre o file picker — listener único, fora do buildPreview
+  document.getElementById('previewWrap').addEventListener('click', () => {
+    document.getElementById('fi').click();
+  });
+</script>
+</body>
+</html>
